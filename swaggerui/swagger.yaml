@@ -1,0 +1,349 @@
+
+openapi: 3.0.3
+info:
+  title: Swagger Library API - OpenAPI 3.0
+  description: List and borrow book from library
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: user@email.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:8080
+  - url: https://library-api-prod.com:8080
+tags:
+  - name: auth
+    description: Authentication
+  - name: book
+    description: Everything about book
+  - name: borrowing-record
+    description: Borrow and return book
+security:
+  - BearerAuth: []
+paths:
+  /signin:
+    post:
+      tags:
+        - auth
+      summary: Sign in to get JWT token
+      description: Sign in to get JWT token
+      operationId: signIn
+      requestBody:
+        description: User credentials
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IDToken'
+
+        '401':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+  /books:
+    get:
+      tags:
+        - book
+      summary: Get all books
+      description: Get all books
+      operationId: books
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookReq'
+
+        '401':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+    post:
+      tags:
+        - book
+      summary: Post book to library
+      description: Post book to library
+      operationId: postBook
+      requestBody:
+        description: User credentials
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostBookReq'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostBookRes'
+
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+
+        '401':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+
+  /borrowing-records:
+    post:
+      tags:
+        - borrowing-record
+      summary: Post book to borrow
+      description: Post book to borrow
+      operationId: borrowBook
+      requestBody:
+        description: User credentials
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BorrowingRecordReq'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowingRecordRes'
+
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+
+        '401':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+  /borrowing-records/{id}:
+    put:
+      tags:
+        - borrowing-record
+      summary: Post book to return
+      description: Post book to return
+      operationId: returnBook
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnBorrowingRecordRes'
+
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
+
+        '401':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedError'
+        '500':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+
+components:
+  schemas:
+    Credentials:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@email.com
+        password:
+          type: string
+          example: p4ssw0rd
+
+    BookReq:
+      type: object
+      example:
+        id: 6
+        title: kambing
+        description: ayam
+        quantity: 42
+        cover:
+        author:
+            id: 1
+            name: joni
+
+    PostBookReq:
+      type: object
+      example:
+        title: iniBuku
+        description: pastiBuku
+        quantity: 2
+        cover: www.buku.com
+        authorID: 1
+
+    PostBookRes:
+      type: object
+      properties:
+        data:
+          type: object
+          example:
+            id: 3
+            title: iniBuku
+            description: pastiBuku
+            quantity: 2
+            cover: www.buku.com
+            authorID: 1
+
+    BorrowingRecordReq:
+      type: object
+      example:
+        userID: 1
+        bookID: 5
+
+    BorrowingRecordRes:
+      type: object
+      example:
+        id: 4
+        userID: 1
+        bookID: 5
+        status: true
+        borrowingDate: 2022-08-08T16:50:50.110676181+07:00
+        returningDate: null
+
+    ReturnBorrowingRecordRes:
+      type: object
+      properties:
+        data:
+          type: object
+          example:
+            id: 1
+            userID: 1,
+            bookID: 5,
+            status: RETURNED
+            borrowingDate: 2022-08-05T18:59:34.004384Z
+            returningDate": 2022-08-08T20:35:34.863325635+07:00
+
+    IDToken:
+      type: object
+      properties:
+        idToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJBcmlmIiwiZXhwIjoxNjU5OTM1MDM1LCJpYXQiOjE2NTk5MzQxMzUsInVzZXIiOnsiaWQiOjEsIm5hbWUiOiJVc2VyIiwicGhvbmUiOiIwODA4MDgwODA4MDgiLCJlbWFpbCI6InVzZXJAZW1haWwuY29tIn19.fXLeajCCOChCjWE6rMseW3ghjdCYCWQuFCBQyqyafGA
+
+    UnauthorizedError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 401
+        code:
+          type: string
+          example: "UNAUTHORIZED_ERROR"
+        message:
+          type: string
+          example: Unauthorized error
+
+    InternalServerError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 500
+        code:
+          type: string
+          example: "INTERNAL_SERVER_ERROR"
+        message:
+          type: string
+          example: Internal server error
+
+    BadRequestError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 400
+        code:
+          type: string
+          example: "BAD_REQUEST_ERROR"
+        message:
+          type: string
+          example: Bad request error
+
+  requestBodies:
+    CredentialsBody:
+      description: User email and password
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Credentials'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
